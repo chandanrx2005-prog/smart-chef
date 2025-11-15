@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Chef: Cook With What You Have</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Welcome Page */
+        .welcome-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.5s;
+        }
+
+        .welcome-page.hidden {
+            animation: fadeOut 0.8s forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .welcome-content {
+            text-align: center;
+            color: white;
+            animation: slideUp 1s ease-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .welcome-logo {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Falling Vegetables and Fruits Animation */
+        .cartoon-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .falling-item {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.9;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                top: -100px;
+                transform: rotate(0deg);
+            }
+            100% {
+                top: 100vh;
+                transform: rotate(360deg);
+            }
+        }
+
+        .item1 { left: 5%; animation-duration: 8s; animation-delay: 0s; }
+        .item2 { left: 15%; animation-duration: 10s; animation-delay: 2s; }
+        .item3 { left: 25%; animation-duration: 7s; animation-delay: 4s; }
+        .item4 { left: 35%; animation-duration: 9s; animation-delay: 1s; }
+        .item5 { left: 45%; animation-duration: 11s; animation-delay: 3s; }
+        .item6 { left: 55%; animation-duration: 8s; animation-delay: 5s; }
+        .item7 { left: 65%; animation-duration: 10s; animation-delay: 2.5s; }
+        .item8 { left: 75%; animation-duration: 9s; animation-delay: 4.5s; }
+        .item9 { left: 85%; animation-duration: 7s; animation-delay: 1.5s; }
+        .item10 { left: 95%; animation-duration: 8.5s; animation-delay: 3.5s; }
+        .item11 { left: 10%; animation-duration: 9.5s; animation-delay: 6s; }
+        .item12 { left: 20%; animation-duration: 7.5s; animation-delay: 5.5s; }
+        .item13 { left: 30%; animation-duration: 10.5s; animation-delay: 0.5s; }
+        .item14 { left: 40%; animation-duration: 8.5s; animation-delay: 4s; }
+        .item15 { left: 50%; animation-duration: 9s; animation-delay: 2s; }
+        .item16 { left: 60%; animation-duration: 11s; animation-delay: 5s; }
+        .item17 { left: 70%; animation-duration: 7s; animation-delay: 3s; }
+        .item18 { left: 80%; animation-duration: 8s; animation-delay: 6s; }
+        .item19 { left: 90%; animation-duration: 10s; animation-delay: 1s; }
+        .item20 { left: 12%; animation-duration: 9s; animation-delay: 4.5s; }
+
+        .welcome-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .welcome-tagline {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .welcome-btn {
+            padding: 1.2rem 3rem;
+            background: white;
+            color: #667eea;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .welcome-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .main-site {
+            display: none;
+        }
+
+        .main-site.active {
+            display: block;
+        }
+
+        /* Navigation */
+        nav {
+            background: #2c2c2c;
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: normal;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: #ddd;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 90vh;
+            background: linear-gradient(rgba(60, 40, 30, 0.6), rgba(60, 40, 30, 0.6)),
+                        url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"%3E%3Crect fill="%238B4513" width="1200" height="800"/%3E%3C/svg%3E');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            font-style: italic;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 0;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .search-container input {
+            flex: 1;
+            padding: 0.9rem 1.2rem;
+            border: none;
+            font-size: 0.95rem;
+            border-radius: 0;
+        }
+
+        .search-container button {
+            padding: 0.9rem 2rem;
+            background: #2c2c2c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .search-container button:hover {
+            background: #1a1a1a;
+        }
+
+        /* Section Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            font-weight: normal;
+        }
+
+        /* About Section */
+        #about {
+            background: #f9f9f9;
+        }
+
+        .about-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .about-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .about-card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .about-card-body {
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .about-card-body h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .about-card-body p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-green {
+            display: inline-block;
+            padding: 0.6rem 1.8rem;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-green:hover {
+            background: #218838;
+        }
+
+        /* Modal for Learn More */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            overflow: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+            border: none;
+            background: none;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .modal-content p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .chatbot-button {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+
+        .chatbot-button span {
+            font-size: 30px;
+            color: white;
+        }
+
+        .chatbot-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-window.active {
+            display: flex;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-message.bot {
+            justify-content: flex-start;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .chat-message.bot .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .chatbot-input button {
+            margin-left: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .chatbot-input button:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-window {
+                width: calc(100vw - 40px);
+                right: -10px;
+            }
+        }
+
+        /* Services Section */
+        #services {
+            background: white;
+        }
+
+        .services-header {
+            font-size: 1.5rem;
+            margin-bottom: 2.5rem;
+            font-weight: 600;
+        }
+
+        .services-container {
+            background: #f5f5f5;
+            padding: 3rem 2rem;
+            border-radius: 8px;
+        }
+
+        .services-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 2.5rem;
+            font-weight: normal;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .service-card-img {
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 1.2rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        .service-card p {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+        }
+
+        /* Contact Section */
+        #contact {
+            background: #f9f9f9;
+        }
+
+        .contact-header {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            font-weight: 600;
+        }
+
+        .contact-form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .contact-form-container h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            font-weight: normal;
+        }
+
+        .contact-form-container > p {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #999;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-blue {
+            width: 100%;
+            padding: 0.9rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-blue:hover {
+            background: #0056b3;
+        }
+
+        /* Search Results */
+        .search-results {
+            display: none;
+            background: white;
+            padding: 3rem 2rem;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+
+        .recipe-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .recipe-result-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .recipe-result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .recipe-result-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .recipe-result-body {
+            padding: 1.5rem;
+        }
+
+        .recipe-result-body h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+            color: #333;
+        }
+
+        .recipe-result-body p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+
+        .btn-view {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-view:hover {
+            background: #0056b3;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin: 2rem auto;
+            padding: 0.8rem 2rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c2c2c;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            margin: 0.3rem 0;
+        }
+
+        @media (max-width: 992px) {
+            .about-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Page -->
+    <div class="welcome-page" id="welcomePage">
+        <div class="cartoon-container">
+            <div class="falling-item item1">🍎</div>
+            <div class="falling-item item2">🥕</div>
+            <div class="falling-item item3">🍌</div>
+            <div class="falling-item item4">🍅</div>
+            <div class="falling-item item5">🥦</div>
+            <div class="falling-item item6">🍊</div>
+            <div class="falling-item item7">🥬</div>
+            <div class="falling-item item8">🍇</div>
+            <div class="falling-item item9">🌽</div>
+            <div class="falling-item item10">🍓</div>
+            <div class="falling-item item11">🥒</div>
+            <div class="falling-item item12">🍉</div>
+            <div class="falling-item item13">🫑</div>
+            <div class="falling-item item14">🍑</div>
+            <div class="falling-item item15">🥔</div>
+            <div class="falling-item item16">🍍</div>
+            <div class="falling-item item17">🧅</div>
+            <div class="falling-item item18">🥝</div>
+            <div class="falling-item item19">🍆</div>
+            <div class="falling-item item20">🥑</div>
+        </div>
+        <div class="welcome-content">
+            <div class="welcome-logo">🍳</div>
+            <h1 class="welcome-title">Smart Chef</h1>
+            <p class="welcome-tagline">Welcome Foodie!</p>
+            <button class="welcome-btn" onclick="enterSite()">Enter Kitchen</button>
+        </div>
+    </div>
+
+    <!-- Main Site Content -->
+    <div class="main-site" id="mainSite">
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-logo">Recipe Finder</div>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <h1>Welcome to Recipe Finder</h1>
+        <p>Discover recipes using your favorite ingredients!</p>
+        <div class="search-container">
+            <input type="text" placeholder="Enter ingredients">
+            <button>Search</button>
+        </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section id="searchResults" class="search-results">
+        <div class="container">
+            <h2 class="results-header" id="resultsTitle">Search Results</h2>
+            <div id="resultsContainer"></div>
+            <div style="text-align: center;">
+                <button class="back-btn" onclick="hideSearchResults()">Back to Home</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <h2 class="section-header">About Us</h2>
+            <div class="about-cards">
+                <div class="about-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23D2691E' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='80' text-anchor='middle' dy='.3em'%3E🍲%3C/text%3E%3C/svg%3E" alt="Our Mission" class="about-card-img">
+                    <div class="about-card-body">
+                        <h3>Our Mission</h3>
+                        <p>aim to provide the best recipes curated from around the world to imagine your cooking journey.</p>
+                        <button class="btn-green" onclick="showInfo('mission')">Learn More</button>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23CD853F' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='80' text-anchor='middle' dy='.3em'%3E🥘%3C/text%3E%3C/svg%3E" alt="Our Vision" class="about-card-img">
+                    <div class="about-card-body">
+                        <h3>Our Vision</h3>
+                        <p>To become the go-to platform for food enthusiasts looking for easy and creative recipes.</p>
+                        <button class="btn-green" onclick="showInfo('vision')">Learn More</button>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23DEB887' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='80' text-anchor='middle' dy='.3em'%3E🍢%3C/text%3E%3C/svg%3E" alt="Our Team" class="about-card-img">
+                    <div class="about-card-body">
+                        <h3>Our Team</h3>
+                        <p>Meet the passionate foodies behind the scenes who make it all happen.</p>
+                        <button class="btn-green" onclick="showInfo('team')">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <div class="container">
+            <h2 class="services-header">5.2.3 OUR SERVICES</h2>
+            <div class="services-container">
+                <h3 class="services-title">Our Services</h3>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%234682B4' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='60' text-anchor='middle' dy='.3em'%3E📋%3C/text%3E%3C/svg%3E" alt="Recipe Suggestions" class="service-card-img">
+                        <h3>Recipe Suggestions</h3>
+                        <p>Get tailored recipe suggestions based on your favorite ingredients.</p>
+                        <button class="btn-green" onclick="showInfo('recipeSuggestions')">Learn More</button>
+                    </div>
+
+                    <div class="service-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%2387CEEB' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='60' text-anchor='middle' dy='.3em'%3E📊%3C/text%3E%3C/svg%3E" alt="Nutritional Information" class="service-card-img">
+                        <h3>Nutritional Information</h3>
+                        <p>Access detailed nutritional breakdowns for all your favorite recipes.</p>
+                        <button class="btn-green" onclick="showInfo('nutrition')">Learn More</button>
+                    </div>
+
+                    <div class="service-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23FFB6C1' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='60' text-anchor='middle' dy='.3em'%3E💡%3C/text%3E%3C/svg%3E" alt="Cooking Tips" class="service-card-img">
+                        <h3>Cooking Tips</h3>
+                        <p>Learn expert cooking tips and tricks to elevate your kitchen game.</p>
+                        <button class="btn-green" onclick="showInfo('cookingTips')">Learn More</button>
+                    </div>
+
+                    <div class="service-card">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23DDA0DD' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='60' text-anchor='middle' dy='.3em'%3E📅%3C/text%3E%3C/svg%3E" alt="Meal Planning" class="service-card-img">
+                        <h3>Meal Planning</h3>
+                        <p>Plan your meals ahead with our intuitive meal planning services.</p>
+                        <button class="btn-green" onclick="showInfo('mealPlanning')">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <div class="container">
+            <h2 class="contact-header">5.2.4 CONTACT US</h2>
+            <div class="contact-form-container">
+                <h2>Contact Us</h2>
+                <p>Have a question or need help? Drop us a message, and we'll get back to you!</p>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Email</label>
+                        <input type="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Message</label>
+                        <textarea placeholder="Type your message here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-blue">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Dept of CSE, MVJCE</p>
+        <p>Page 18-19</p>
+        <p>2024-2025</p>
+    </footer>
+
+    </div>
+    <!-- End Main Site Content -->
+
+    <!-- Modal for Learn More -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle"></h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <div class="chatbot-button" onclick="toggleChatbot()">
+            <span>💬</span>
+        </div>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h3>🍳 Smart Chef Assistant</h3>
+                <button class="chatbot-close" onclick="toggleChatbot()">&times;</button>
+            </div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="chat-message bot">
+                    <div class="message-bubble">
+                        Hi! I'm your Smart Chef Assistant! 👋<br>
+                        How can I help you today?
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Welcome page functionality
+        function enterSite() {
+            const welcomePage = document.getElementById('welcomePage');
+            const mainSite = document.getElementById('mainSite');
+            
+            welcomePage.classList.add('hidden');
+            
+            setTimeout(() => {
+                welcomePage.style.display = 'none';
+                mainSite.classList.add('active');
+                document.body.style.overflow = 'auto';
+            }, 800);
+        }
+
+        // Information content for modals
+        const infoContent = {
+            mission: {
+                title: "Our Mission",
+                body: `<p>At Smart Chef, our mission is to revolutionize home cooking by making it accessible, enjoyable, and creative for everyone. We believe that everyone deserves delicious, homemade meals regardless of their cooking skill level.</p>
+                       <p>We curate the best recipes from around the world, tested by professional chefs and home cooks alike. Our platform empowers you to discover new cuisines, learn cooking techniques, and create memorable meals for your loved ones.</p>
+                       <p>We're committed to sustainability and encourage using local, seasonal ingredients while minimizing food waste through smart ingredient-based recipe recommendations.</p>`
+            },
+            vision: {
+                title: "Our Vision",
+                body: `<p>Our vision is to become the world's leading platform for food enthusiasts, where creativity meets convenience in the kitchen.</p>
+                       <p>We envision a future where:</p>
+                       <p>• Every home cook has access to professional-quality recipes and techniques<br>
+                       • Food waste is minimized through intelligent ingredient matching<br>
+                       • Cooking becomes a joyful, stress-free experience<br>
+                       • Communities connect through shared love of food and cooking</p>
+                       <p>We're building a comprehensive ecosystem that supports every step of your culinary journey, from ingredient selection to plating presentation.</p>`
+            },
+            team: {
+                title: "Our Team",
+                body: `<p>Behind Smart Chef is a diverse team of passionate food lovers, professional chefs, nutritionists, and technology experts who share a common goal: making cooking accessible and enjoyable for everyone.</p>
+                       <p><strong>Chef Team:</strong> Our culinary experts test every recipe to ensure perfect results every time.</p>
+                       <p><strong>Nutrition Specialists:</strong> Certified nutritionists provide accurate nutritional information and healthy alternatives.</p>
+                       <p><strong>Tech Innovators:</strong> Our developers create intuitive tools that make recipe discovery seamless and personalized.</p>
+                       <p><strong>Community Managers:</strong> Dedicated team members who foster our vibrant cooking community and gather valuable feedback.</p>
+                       <p>Together, we're committed to transforming your cooking experience!</p>`
+            },
+            recipeSuggestions: {
+                title: "Recipe Suggestions",
+                body: `<p>Our intelligent recipe suggestion system helps you discover perfect dishes based on what you have in your kitchen.</p>
+                       <p><strong>How it works:</strong></p>
+                       <p>• Enter the ingredients you have available<br>
+                       • Our AI-powered algorithm matches recipes that use those ingredients<br>
+                       • Get personalized recommendations based on your preferences and dietary restrictions<br>
+                       • Save your favorite recipes for easy access later</p>
+                       <p><strong>Features:</strong></p>
+                       <p>• Filter by cuisine type, cooking time, and difficulty level<br>
+                       • Substitute suggestions for missing ingredients<br>
+                       • Step-by-step cooking instructions with photos<br>
+                       • Community ratings and reviews</p>`
+            },
+            nutrition: {
+                title: "Nutritional Information",
+                body: `<p>Make informed decisions about your meals with our comprehensive nutritional information for every recipe.</p>
+                       <p><strong>What we provide:</strong></p>
+                       <p>• Complete macronutrient breakdown (proteins, carbs, fats)<br>
+                       • Calorie count per serving<br>
+                       • Vitamin and mineral content<br>
+                       • Allergen warnings and dietary labels (vegan, gluten-free, etc.)</p>
+                       <p><strong>Health Features:</strong></p>
+                       <p>• Track your daily nutritional intake<br>
+                       • Set dietary goals and monitor progress<br>
+                       • Get suggestions for healthier ingredient substitutions<br>
+                       • Access nutritionist-approved meal plans</p>
+                       <p>All nutritional data is verified by certified nutritionists and updated regularly.</p>`
+            },
+            cookingTips: {
+                title: "Cooking Tips",
+                body: `<p>Master the art of cooking with expert tips and techniques from professional chefs.</p>
+                       <p><strong>What you'll learn:</strong></p>
+                       <p>• Basic knife skills and cutting techniques<br>
+                       • Proper seasoning and flavor balancing<br>
+                       • Temperature control for perfect results<br>
+                       • Time-saving kitchen hacks<br>
+                       • Food storage and meal prep strategies</p>
+                       <p><strong>Special Features:</strong></p>
+                       <p>• Video tutorials demonstrating complex techniques<br>
+                       • Troubleshooting guides for common cooking problems<br>
+                       • Equipment recommendations and usage tips<br>
+                       • Seasonal cooking guides</p>
+                       <p>Whether you're a beginner or experienced cook, our tips will help elevate your culinary skills!</p>`
+            },
+            mealPlanning: {
+                title: "Meal Planning",
+                body: `<p>Take the stress out of weekly meal planning with our intuitive meal planning service.</p>
+                       <p><strong>Features:</strong></p>
+                       <p>• Create weekly or monthly meal plans<br>
+                       • Automatic shopping list generation<br>
+                       • Budget tracking and cost estimation<br>
+                       • Family meal coordination tools<br>
+                       • Leftover management system</p>
+                       <p><strong>Smart Planning Tools:</strong></p>
+                       <p>• Drag-and-drop meal calendar<br>
+                       • Recipe rotation suggestions to avoid repetition<br>
+                       • Batch cooking and meal prep schedules<br>
+                       • Grocery delivery integration<br>
+                       • Nutritionally balanced meal suggestions</p>
+                       <p>Save time, reduce food waste, and enjoy stress-free meal times with Smart Chef meal planning!</p>`
+            }
+        };
+
+        // Show modal with information
+        function showInfo(type) {
+            const modal = document.getElementById('infoModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            if (infoContent[type]) {
+                title.textContent = infoContent[type].title;
+                body.innerHTML = infoContent[type].body;
+                modal.classList.add('active');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('infoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Recipe database with proper food images
+        const recipes = [
+            {
+                name: "Bisi Bele Bath",
+                ingredients: ["rice", "lentils", "vegetables", "tamarind", "spices", "ghee"],
+                description: "Traditional Karnataka one-pot meal with rice, lentils, vegetables and aromatic spices",
+                time: "45 mins",
+                servings: "4",
+                image: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.zJt5qxGvxJG7p8Z7SkGW3wHaFj%26pid%3DApi&f=1&ipt=8c1d5f3f0f0b0c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c1c&ipo=images"
+            },
+            {
+                name: "Mysore Masala Dosa",
+                ingredients: ["rice", "urad dal", "potato", "onion", "spices", "chutney"],
+                description: "Crispy rice crepe filled with spiced potato filling, a Karnataka specialty",
+                time: "30 mins",
+                servings: "4",
+                image: "https://thumbs.dreamstime.com/b/masala-dosa-south-indian-food-17425825.jpg"
+            },
+            {
+                name: "Ragi Mudde",
+                ingredients: ["ragi flour", "water", "salt"],
+                description: "Nutritious finger millet balls, a staple food in rural Karnataka",
+                time: "20 mins",
+                servings: "4",
+                image: "https://thumbs.dreamstime.com/b/ragi-mudde-finger-millet-balls-which-staple-food-karnataka-india-115856738.jpg"
+            },
+            {
+                name: "Neer Dosa",
+                ingredients: ["rice", "coconut", "water", "salt"],
+                description: "Soft and lacy rice crepes from coastal Karnataka, perfect with coconut chutney",
+                time: "25 mins",
+                servings: "6",
+                image: "https://thumbs.dreamstime.com/b/neer-dosa-rice-crepe-south-indian-breakfast-136826268.jpg"
+            },
+            {
+                name: "Mangalore Buns",
+                ingredients: ["banana", "flour", "yogurt", "sugar", "oil"],
+                description: "Sweet and fluffy deep-fried bread made with ripe bananas",
+                time: "40 mins",
+                servings: "8",
+                image: "https://thumbs.dreamstime.com/b/banana-buns-mangalore-buns-fried-south-indian-breakfast-153796732.jpg"
+            },
+            {
+                name: "Spaghetti Carbonara",
+                ingredients: ["pasta", "eggs", "bacon", "cheese", "pepper"],
+                description: "Classic Italian pasta with creamy egg sauce and crispy bacon",
+                time: "25 mins",
+                servings: "4",
+                image: "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Chicken Stir Fry",
+                ingredients: ["chicken", "vegetables", "soy sauce", "garlic", "ginger"],
+                description: "Quick and healthy stir-fried chicken with fresh vegetables",
+                time: "20 mins",
+                servings: "3",
+                image: "https://images.pexels.com/photos/2338407/pexels-photo-2338407.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Margherita Pizza",
+                ingredients: ["dough", "tomato", "cheese", "basil", "olive oil"],
+                description: "Traditional Italian pizza with fresh mozzarella and basil",
+                time: "30 mins",
+                servings: "2",
+                image: "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Caesar Salad",
+                ingredients: ["lettuce", "cheese", "croutons", "dressing", "chicken"],
+                description: "Crispy romaine lettuce with Caesar dressing and parmesan",
+                time: "15 mins",
+                servings: "4",
+                image: "https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Paneer Tikka",
+                ingredients: ["paneer", "yogurt", "spices", "bell pepper", "onion"],
+                description: "Grilled Indian cottage cheese marinated in aromatic spices",
+                time: "30 mins",
+                servings: "4",
+                image: "https://images.pexels.com/photos/6260921/pexels-photo-6260921.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Vegetable Curry",
+                ingredients: ["vegetables", "curry", "coconut milk", "rice", "spices"],
+                description: "Aromatic vegetable curry with coconut milk",
+                time: "35 mins",
+                servings: "5",
+                image: "https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Grilled Salmon",
+                ingredients: ["salmon", "lemon", "herbs", "garlic", "butter"],
+                description: "Perfectly grilled salmon with lemon and herbs",
+                time: "20 mins",
+                servings: "2",
+                image: "https://images.pexels.com/photos/3763816/pexels-photo-3763816.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Chocolate Cake",
+                ingredients: ["flour", "sugar", "eggs", "chocolate", "butter", "milk"],
+                description: "Rich and moist chocolate cake with ganache frosting",
+                time: "60 mins",
+                servings: "8",
+                image: "https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Fried Rice",
+                ingredients: ["rice", "eggs", "vegetables", "soy sauce", "garlic"],
+                description: "Classic fried rice with eggs and mixed vegetables",
+                time: "20 mins",
+                servings: "4",
+                image: "https://images.pexels.com/photos/2456435/pexels-photo-2456435.jpeg?auto=compress&cs=tinysrgb&w=600"
+            },
+            {
+                name: "Mushroom Risotto",
+                ingredients: ["rice", "mushroom", "cheese", "butter", "wine", "broth"],
+                description: "Creamy Italian risotto with mushrooms",
+                time: "40 mins",
+                servings: "4",
+                image: "https://images.pexels.com/photos/8477852/pexels-photo-8477852.jpeg?auto=compress&cs=tinysrgb&w=600"
+            }
+        ];
+
+        // Search functionality
+        function searchRecipes() {
+            const searchInput = document.querySelector('.search-container input').value.toLowerCase().trim();
+            
+            if (!searchInput) {
+                alert('Please enter ingredients to search');
+                return;
+            }
+
+            const searchTerms = searchInput.split(',').map(term => term.trim().toLowerCase());
+            
+            const matchedRecipes = recipes.filter(recipe => {
+                return searchTerms.some(term => 
+                    recipe.ingredients.some(ingredient => ingredient.includes(term)) ||
+                    recipe.name.toLowerCase().includes(term)
+                );
+            });
+
+            displaySearchResults(matchedRecipes, searchInput);
+        }
+
+        function displaySearchResults(matchedRecipes, searchTerm) {
+            // Hide other sections
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('about').style.display = 'none';
+            document.getElementById('services').style.display = 'none';
+            document.getElementById('contact').style.display = 'none';
+            
+            // Show search results
+            const resultsSection = document.getElementById('searchResults');
+            resultsSection.classList.add('active');
+            
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (matchedRecipes.length === 0) {
+                resultsTitle.textContent = 'No Recipes Found';
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <p>No recipes found with ingredients: "${searchTerm}"</p>
+                        <p>Try different ingredients or check your spelling.</p>
+                    </div>
+                `;
+            } else {
+                resultsTitle.textContent = `Found ${matchedRecipes.length} Recipe${matchedRecipes.length > 1 ? 's' : ''}`;
+                
+                const resultsHTML = matchedRecipes.map((recipe, index) => `
+                    <div class="recipe-result-card">
+                        <img src="${recipe.image}" alt="${recipe.name}" class="recipe-result-img" style="object-fit: cover;">
+                        <div class="recipe-result-body">
+                            <h3>${recipe.name}</h3>
+                            <p>${recipe.description}</p>
+                            <div class="recipe-meta">
+                                <span>⏱️ ${recipe.time}</span>
+                                <span>👤 ${recipe.servings} servings</span>
+                            </div>
+                            <button class="btn-view" data-recipe-index="${recipes.indexOf(recipe)}">View Recipe</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                resultsContainer.innerHTML = `<div class="recipe-results-grid">${resultsHTML}</div>`;
+                
+                // Add event listeners to view recipe buttons
+                document.querySelectorAll('.btn-view').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const recipeIndex = parseInt(this.getAttribute('data-recipe-index'));
+                        viewRecipe(recipeIndex);
+                    });
+                });
+            }
+            
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').classList.remove('active');
+            document.getElementById('home').style.display = 'flex';
+            document.getElementById('about').style.display = 'block';
+            document.getElementById('services').style.display = 'block';
+            document.getElementById('contact').style.display = 'block';
+            
+            // Clear search input
+            document.querySelector('.search-container input').value = '';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function viewRecipe(recipeIndex) {
+            const recipe = recipes[recipeIndex];
+            if (recipe) {
+                const modal = document.getElementById('infoModal');
+                const title = document.getElementById('modalTitle');
+                const body = document.getElementById('modalBody');
+                
+                const ingredientsList = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                
+                title.textContent = `📖 ${recipe.name}`;
+                body.innerHTML = `
+                    <div style="text-align: left;">
+                        <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong>📝 Description:</strong></p>
+                        <p style="margin-bottom: 1.5rem;">${recipe.description}</p>
+                        
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;"><strong>🛒 Ingredients:</strong></p>
+                        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                            ${ingredientsList}
+                        </ul>
+                        
+                        <p style="margin-bottom: 0.5rem;"><strong>⏱️ Cooking Time:</strong> ${recipe.time}</p>
+                        <p><strong>👤 Servings:</strong> ${recipe.servings}</p>
+                    </div>
+                `;
+                modal.classList.add('active');
+            }
+        }
+
+        // Event listeners
+        document.querySelector('.search-container button').addEventListener('click', searchRecipes);
+        
+        document.querySelector('.search-container input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchRecipes();
+            }
+        });
+
+        // Navigation functionality
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                
+                // If currently viewing search results, hide them first
+                const searchResultsSection = document.getElementById('searchResults');
+                if (searchResultsSection.classList.contains('active')) {
+                    searchResultsSection.classList.remove('active');
+                    document.getElementById('home').style.display = 'flex';
+                    document.getElementById('about').style.display = 'block';
+                    document.getElementById('services').style.display = 'block';
+                    document.getElementById('contact').style.display = 'block';
+                }
+                
+                // Scroll to target section
+                const target = document.querySelector(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Form submission with better feedback
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameInput = this.querySelector('input[type="text"]');
+            const emailInput = this.querySelector('input[type="email"]');
+            const messageInput = this.querySelector('textarea');
+            
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const message = messageInput.value;
+            
+            // Validate inputs
+            if (!name || !email || !message) {
+                const modal = document.getElementById('infoModal');
+                const title = document.getElementById('modalTitle');
+                const body = document.getElementById('modalBody');
+                
+                title.textContent = "⚠️ Missing Information";
+                body.innerHTML = `<p>Please fill in all fields before submitting.</p>`;
+                modal.classList.add('active');
+                return;
+            }
+            
+            // Show success message in modal
+            const modal = document.getElementById('infoModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = "✅ Message Sent Successfully!";
+            body.innerHTML = `
+                <p>Thank you <strong>${name}</strong> for contacting us!</p>
+                <p>We've received your message and will get back to you at <strong>${email}</strong> as soon as possible.</p>
+                <p>Our team typically responds within 24-48 hours.</p>
+                <p style="margin-top: 1.5rem; padding: 1rem; background: #f0f8ff; border-left: 4px solid #007bff; border-radius: 4px;">
+                    <strong>Your Message:</strong><br>
+                    ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}
+                </p>
+            `;
+            modal.classList.add('active');
+            
+            // Reset form
+            this.reset();
+        });
+
+        // Chatbot functionality
+        function toggleChatbot() {
+            const chatWindow = document.getElementById('chatbotWindow');
+            chatWindow.classList.toggle('active');
+            
+            if (chatWindow.classList.contains('active')) {
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        // Diet Plan Generator
+        function generateDietPlan() {
+            const goal = document.getElementById('dietGoal').value;
+            const pref = document.getElementById('dietPref').value;
+            const meals = document.getElementById('mealsPerDay').value;
+            
+            if (!goal || !pref) {
+                alert('Please select both your goal and dietary preference!');
+                return;
+            }
+            
+            const dietPlans = {
+                weightloss: {
+                    vegetarian: {
+                        breakfast: ['Oatmeal with fruits', 'Ragi Mudde with vegetables', 'Poha with peanuts', 'Upma with vegetables', 'Idli with sambar', 'Dalia porridge', 'Sprouts salad'],
+                        lunch: ['Brown rice with dal', 'Vegetable curry with roti', 'Bisi Bele Bath', 'Mixed veg salad', 'Quinoa salad', 'Ragi roti with curry', 'Vegetable khichdi'],
+                        snack: ['Green tea with nuts', 'Fruit salad', 'Roasted chickpeas', 'Cucumber slices', 'Carrots sticks', 'Apple', 'Mixed nuts'],
+                        dinner: ['Grilled vegetables', 'Dal soup with salad', 'Neer Dosa with chutney', 'Vegetable soup', 'Stir-fried vegetables', 'Mushroom curry', 'Paneer tikka with salad']
+                    },
+                    nonveg: {
+                        breakfast: ['Boiled eggs with toast', 'Egg white omelette', 'Chicken sandwich', 'Egg bhurji', 'Poached eggs', 'Scrambled eggs', 'Egg dosa'],
+                        lunch: ['Grilled chicken salad', 'Fish curry with rice', 'Chicken soup', 'Grilled salmon', 'Chicken breast with veggies', 'Fish tikka', 'Chicken clear soup'],
+                        snack: ['Boiled egg whites', 'Tuna salad', 'Chicken broth', 'Hard boiled egg', 'Grilled chicken strips', 'Fish fingers', 'Egg white snack'],
+                        dinner: ['Grilled chicken', 'Fish with vegetables', 'Chicken stir fry', 'Baked fish', 'Chicken tikka', 'Grilled prawns', 'Chicken salad']
+                    }
+                },
+                musclegain: {
+                    vegetarian: {
+                        breakfast: ['Protein smoothie with banana', 'Paneer paratha', 'Oats with nuts', 'Whole wheat bread with peanut butter', 'Banana shake', 'Mixed nuts bowl', 'Besan chilla'],
+                        lunch: ['Paneer tikka with rice', 'Dal with chapati', 'Rajma chawal', 'Chole with rice', 'Paneer curry with roti', 'Mixed dal with brown rice', 'Tofu curry'],
+                        snack: ['Protein shake', 'Paneer cubes', 'Peanut butter sandwich', 'Greek yogurt', 'Protein bar', 'Dry fruits', 'Smoothie bowl'],
+                        dinner: ['Paneer bhurji with roti', 'Mushroom curry', 'Dal makhani', 'Soya curry', 'Cottage cheese salad', 'Lentil soup', 'Tofu stir fry']
+                    },
+                    nonveg: {
+                        breakfast: ['Egg omelette with chicken', 'Protein shake with eggs', 'Chicken sandwich', 'Egg bhurji with toast', 'Boiled eggs (4)', 'Chicken sausages', 'Egg white omelette'],
+                        lunch: ['Grilled chicken with rice', 'Fish curry with chapati', 'Chicken biryani', 'Salmon with vegetables', 'Chicken breast meal', 'Tuna salad with rice', 'Prawn curry'],
+                        snack: ['Protein shake', 'Boiled eggs (2)', 'Chicken breast pieces', 'Tuna sandwich', 'Grilled chicken', 'Fish fingers', 'Egg whites'],
+                        dinner: ['Grilled chicken (200g)', 'Fish tikka with salad', 'Chicken curry', 'Baked fish', 'Chicken steak', 'Prawn masala', 'Egg curry']
+                    }
+                },
+                maintain: {
+                    vegetarian: {
+                        breakfast: ['Idli with sambar', 'Poha', 'Upma', 'Dosa with chutney', 'Paratha with curd', 'Bread with jam', 'Cornflakes with milk'],
+                        lunch: ['Rice with dal and curry', 'Chapati with vegetables', 'Bisi Bele Bath', 'Mixed rice', 'Pulao with raita', 'Curd rice', 'Khichdi'],
+                        snack: ['Tea with biscuits', 'Fresh fruits', 'Pakoras', 'Samosa', 'Namkeen', 'Banana', 'Juice'],
+                        dinner: ['Chapati with curry', 'Fried rice', 'Vegetable pulao', 'Dal rice', 'Noodles', 'Paneer dish', 'Mixed vegetables']
+                    },
+                    nonveg: {
+                        breakfast: ['Egg toast', 'Omelette', 'Boiled eggs', 'Egg dosa', 'Egg sandwich', 'Scrambled eggs', 'Egg bhurji'],
+                        lunch: ['Chicken curry with rice', 'Fish fry with chapati', 'Egg curry', 'Chicken biryani', 'Fish curry', 'Chicken meal', 'Egg rice'],
+                        snack: ['Boiled egg', 'Chicken nuggets', 'Fish cutlet', 'Egg puffs', 'Chicken sandwich', 'Tuna wrap', 'Egg roll'],
+                        dinner: ['Chicken curry', 'Fish fry', 'Grilled chicken', 'Prawn curry', 'Egg curry', 'Chicken fried rice', 'Fish tikka']
+                    }
+                },
+                healthy: {
+                    vegetarian: {
+                        breakfast: ['Fresh fruits bowl', 'Green smoothie', 'Whole grain cereal', 'Avocado toast', 'Fruit salad', 'Oats with berries', 'Vegetable juice'],
+                        lunch: ['Quinoa salad', 'Brown rice bowl', 'Vegetable wrap', 'Green salad', 'Lentil soup', 'Buddha bowl', 'Veggie sushi'],
+                        snack: ['Mixed nuts', 'Fresh juice', 'Fruit smoothie', 'Granola bar', 'Hummus with veggies', 'Trail mix', 'Energy balls'],
+                        dinner: ['Grilled vegetables', 'Soup with salad', 'Stir-fry vegetables', 'Stuffed peppers', 'Vegetable stew', 'Zucchini noodles', 'Cauliflower rice']
+                    },
+                    nonveg: {
+                        breakfast: ['Egg white omelette', 'Smoked salmon toast', 'Protein smoothie', 'Grilled chicken breast', 'Boiled eggs with avocado', 'Turkey sandwich', 'Egg muffins'],
+                        lunch: ['Grilled chicken salad', 'Salmon bowl', 'Chicken soup', 'Tuna wrap', 'Fish with quinoa', 'Chicken breast meal', 'Shrimp salad'],
+                        snack: ['Protein shake', 'Greek yogurt', 'Tuna crackers', 'Chicken strips', 'Hard boiled egg', 'Salmon bites', 'Turkey roll'],
+                        dinner: ['Baked salmon', 'Grilled chicken', 'Fish tikka', 'Chicken stir fry', 'Prawn salad', 'Chicken soup', 'Grilled fish']
+                    }
+                }
+            };
+            
+            const selectedPlan = dietPlans[goal][pref === 'vegan' ? 'vegetarian' : (pref === 'eggetarian' ? 'vegetarian' : pref)];
+            
+            let planHTML = '<div style="display: grid; gap: 2rem;">';
+            
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            days.forEach((day, index) => {
+                planHTML += `
+                    <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <h4 style="color: #667eea; margin-bottom: 1rem; font-size: 1.3rem; border-bottom: 2px solid #667eea; padding-bottom: 0.5rem;">${day}</h4>
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                                <strong style="color: #FF6347;">🌅 Breakfast:</strong> ${selectedPlan.breakfast[index]}
+                            </div>
+                            <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                                <strong style="color: #FFD700;">☀️ Lunch:</strong> ${selectedPlan.lunch[index]}
+                            </div>
+                            ${parseInt(meals) >= 4 ? `<div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                                <strong style="color: #32CD32;">🍎 Snack:</strong> ${selectedPlan.snack[index]}
+                            </div>` : ''}
+                            <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                                <strong style="color: #9370DB;">🌙 Dinner:</strong> ${selectedPlan.dinner[index]}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            planHTML += '</div>';
+            planHTML += `
+                <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; text-align: center;">
+                    <h4 style="margin-bottom: 0.5rem;">💡 Pro Tips:</h4>
+                    <p style="margin: 0.5rem 0;">• Drink 8-10 glasses of water daily</p>
+                    <p style="margin: 0.5rem 0;">• Exercise 30 minutes daily</p>
+                    <p style="margin: 0.5rem 0;">• Get 7-8 hours of sleep</p>
+                    <p style="margin: 0.5rem 0;">• Avoid processed foods and sugary drinks</p>
+                </div>
+            `;
+            
+            document.getElementById('dietPlanContent').innerHTML = planHTML;
+            document.getElementById('dietPlanResult').style.display = 'block';
+            
+            // Scroll to results
+            document.getElementById('dietPlanResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate bot response
+            setTimeout(() => {
+                const response = getBotResponse(message.toLowerCase());
+                addChatMessage(response, 'bot');
+            }, 500);
+        }
+
+        function addChatMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.innerHTML = text;
+            
+            messageDiv.appendChild(bubble);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function getBotResponse(message) {
+            // Recipe-related responses
+            if (message.includes('recipe') || message.includes('cook') || message.includes('dish')) {
+                return "I can help you find recipes! Try searching for ingredients in the search box on our homepage. We have Karnataka dishes like Dosa, Bisi Bele Bath, and international cuisines too! 🍳";
+            }
+            
+            if (message.includes('ingredient') || message.includes('search')) {
+                return "Just enter your available ingredients in the search box and I'll find matching recipes for you! Try searching for 'chicken', 'rice', or 'vegetables'. 🔍";
+            }
+            
+            if (message.includes('karnataka') || message.includes('dosa') || message.includes('idli')) {
+                return "We have amazing Karnataka dishes! Try Mysore Masala Dosa, Bisi Bele Bath, Neer Dosa, Ragi Mudde, and Mangalore Buns. Each one is delicious! 😋";
+            }
+            
+            if (message.includes('help') || message.includes('how')) {
+                return "I'm here to help! You can:<br>• Search recipes by ingredients<br>• View nutritional information<br>• Get cooking tips<br>• Plan your meals<br><br>What would you like to know? 🤗";
+            }
+            
+            if (message.includes('time') || message.includes('quick') || message.includes('fast')) {
+                return "For quick meals, try our Caesar Salad (15 mins), Fried Rice (20 mins), or Chicken Stir Fry (20 mins). Perfect for busy days! ⚡";
+            }
+            
+            if (message.includes('vegetarian') || message.includes('veg')) {
+                return "We have great vegetarian options! Try Vegetable Curry, Mushroom Risotto, Caesar Salad, Paneer Tikka, or any of our Karnataka dishes like Neer Dosa and Bisi Bele Bath! 🥗";
+            }
+            
+            if (message.includes('diet') || message.includes('plan') || message.includes('meal plan')) {
+                return "Check out our Diet Plan section! 📋 You can generate personalized meal plans based on your goals (weight loss, muscle gain, etc.) and dietary preferences. Click on 'Diet Plan' in the sidebar! 🥗";
+            }
+            
+            if (message.includes('contact') || message.includes('email') || message.includes('support')) {
+                return "You can reach us through the Contact form at the bottom of the page. We typically respond within 24-48 hours! 📧";
+            }
+            
+            if (message.includes('thank') || message.includes('thanks')) {
+                return "You're welcome! Happy cooking! If you need anything else, just ask! 😊";
+            }
+            
+            if (message.includes('hi') || message.includes('hello') || message.includes('hey')) {
+                return "Hello! 👋 Welcome to Smart Chef! How can I assist you with your cooking today?";
+            }
+            
+            // Default response
+            return "I'd love to help! You can ask me about:<br>• Finding recipes<br>• Ingredient searches<br>• Karnataka dishes<br>• Cooking tips<br>• Quick meals<br><br>What interests you? 🍽️";
+        }
+    </script>
+</body>
+</html>
